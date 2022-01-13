@@ -2,6 +2,7 @@ const fs                = require('fs');
 const jsObfuscator      = require('js-obfuscator');
 const pretty            = require('pretty');
 const prettyjs          = require('pretty-js');
+const UglifyJS          = require('uglify-js');
 
 require('log-timestamp');
 
@@ -26,7 +27,7 @@ const writeFile = async (file, data) => {
     }
 }
 
-const deleteFiles = function() {
+const deleteFiles = () => {
     fs.readdirSync('./src').forEach(file => {
         if (file.indexOf('.js') > -1) fs.unlink('./src/' + file, (e) => console.error(e));
     });
@@ -58,50 +59,47 @@ const compile = async () => {
     let html = '';
     let css = '';
     let js = '';
+    let scripts = '';
 
     files.forEach(async (file, index) => {
-        try {
-            const data = fs.readFileSync(`${folder}/${file}`, 'utf8');
-            const tags = getDataFromTag(data);
-            html += `<div class="${id}" id="${file.split('.')[0]}" style="display: none;">${tags[0]}</div>`;
+        const data = fs.readFileSync(`${folder}/${file}`, 'utf8');
+        const tags = getDataFromTag(data);
+        html += `<div class="${id}" id="${file.split('.')[0]}" style="display: none;">${tags[0]}</div>`;
 
-            files.forEach(file => {
-                html = html.replaceAll(`href="#${file.split('.')[0]}"`, `href="#${file.split('.')[0]}" onclick="SB_${file.split('.')[0]}()"`);
-                html = html.replaceAll('href="#"', `href="#" onclick="SB_index()"`);
-            });
+        files.forEach(file => {
+            html = html.replaceAll(`href="#${file.split('.')[0]}"`, `href="#${file.split('.')[0]}" onclick="JVB_${file.split('.')[0]}()"`);
+            html = html.replaceAll('href="#"', `href="#" onclick="JVB_index()"`);
+        });
 
-            css += (tags[1]) ? `<style>${tags[1]}</style>` : '';
+        css += (tags[1]) ? `<style>${tags[1]}</style>` : '';
 
-            js += `
-                    function SB_${file.split('.')[0]}() {
-                            ${tags[2]}
-                            ${getTitle(data)}
-                            for (const element of document.getElementsByClassName('${id}'))
-                                    element.style.display = 'none';
-                            document.getElementById('${file.split('.')[0]}').style.display = 'block';
-                    }
-            `;
+        js += `
+                function JVB_${file.split('.')[0]}() {
+                        ${tags[2]}
+                        ${getTitle(data)}
+                        for (const element of document.getElementsByClassName('${id}'))
+                                element.style.display = 'none';
+                        document.getElementById('${file.split('.')[0]}').style.display = 'block';
+                }
+        `;
 
-            tags[3]?.map(link => {
-                html += `<script${
-                    /<include(.*?)\/>/g.exec(link)[1]
-                }></script>`;
-            });
+        tags[3]?.map(link => {
+            scripts += `<script${
+                /<include(.*?)\/>/g.exec(link)[1]
+            }></script>`;
+        });
 
-            if (file == "index.jvb") js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1 || document.URL[document.URL.length - 1] == '#' || document.URL.indexOf('#') == -1) SB_${file.split('.')[0]}();`;
-            else js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1) SB_${file.split('.')[0]}();`;
+        if (file == "index.jvb") js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1 || document.URL[document.URL.length - 1] == '#' || document.URL.indexOf('#') == -1) JVB_${file.split('.')[0]}();`;
+        else js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1) JVB_${file.split('.')[0]}();`;
 
-            console.log("\033[1;32m[Start]\033[0m " + file);
-        } catch (e) {
-            console.error(e);
-        }
+        console.log("\033[1;32m[Start]\033[0m " + file);
     });
     deleteFiles();
     content = content.replace('</head>', `${css}</head>`);
-    content = content.replace('</body>', `${html}<script src="${id}.js"></script></body>`);
+    content = content.replace('</body>', `${scripts}<script src="app.${id}.js"></script></body>`);
 
     writeFile('./src/index.html', pretty(content));
-    writeFile(`./src/${id}.js`, (config['encode']) ? prettyjs(await jsObfuscator(js, options)) : js);
+    writeFile(`./src/app.${id}.js`, (config['encode']) ? (`document.write('${html}');\n`+ await jsObfuscator(UglifyJS.minify(js).code, options)) : js);
 }
 
 compile();

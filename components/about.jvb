@@ -1,9 +1,23 @@
 @Giới thiệu
 
-<h1 id="text">Javascript view best</h1>
-<a href="#">Home</a>
+<p>Tên: Châu Nguyễn Thanh Duy</p>
+<p>Lớp: 9A5</p>
+
+<hr/>
+
+<p>Câu hỏi: Em hãy cho biết 1 số sai lầm khi thực hiện nhảy xa kiểu ngồi và những lỗi phạm quy trong nhảy xa kiểu ngồi.</p>
+<p>Bài làm:</p>
+<p>Một số sai lầm khi nhảy xa kiểu ngồi:</p>
+<p>- Chạy đà không chính xác, không tạo được tư thế giậm nhảy.</p>
+<p>- Giậm nhảy người bị lao về trước.</p>
+<p>- Không thực hiện được tư thế đi bộ trên không.</p>
+<p>- Không nâng được đùi và đưa chân ra trước.</p>
+<p>- Bị ngã sau khi tiếp đất.</p>
+
+<p>Những lỗi phạm quy:</p>
+<p>- Bước vượt qua vạch nhảy</p>
+<p>- Bị ngược về hố cát.</p>
 
 <style></style>
 <script>
-document.getElementById('text').onclick = () => console.log('Welcome');
 </script>

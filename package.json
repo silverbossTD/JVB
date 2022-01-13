@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "html-obfuscator": "^1.0.2",
     "js-obfuscator": "^0.1.4",
     "log-timestamp": "^0.3.0",
     "pretty": "^2.0.0",
-    "pretty-js": "^0.2.2"
+    "pretty-js": "^0.2.2",
+    "uglify-js": "^3.14.5"
   }
 }

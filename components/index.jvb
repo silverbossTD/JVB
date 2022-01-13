@@ -1,6 +1,7 @@
 @Trang chủ
 
 <h1>WELCOME TO JVB</h1>
+<button id="start-btn">Start</button>
 <a href="#about">About</a>
 
 <style>
@@ -9,4 +10,7 @@
 }
 </style>
 
-<script></script>
+<script>
+const btn = document.getElementById('start-btn');
+btn.onclick = () => console.log('START!!!');
+</script>
