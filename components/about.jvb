@@ -1,0 +1,9 @@
+@Giới thiệu
+
+<h1 id="text">Javascript view best</h1>
+<a href="#">Home</a>
+
+<style></style>
+<script>
+document.getElementById('text').onclick = () => console.log('Welcome');
+</script>

@@ -1,0 +1,12 @@
+@Trang chủ
+
+<h1>WELCOME TO JVB</h1>
+<a href="#about">About</a>
+
+<style>
+#index h1 {
+    color: red;
+}
+</style>
+
+<script></script>

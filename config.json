@@ -1,0 +1,11 @@
+{
+    "encode": true,
+    "obfuscator": {
+        "keepLinefeeds": true,
+        "keepIndentations": true,
+        "encodeStrings": true,
+        "encodeNumbers": true,
+        "moveStrings": true,
+        "replaceNames": true
+    }
+}
