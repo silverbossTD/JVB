@@ -1,15 +1,13 @@
-@Phát ngu
-
 <h1>PHÁT NGU</h1>
 <p id="abc"></p>
 
 <style>
-#phatngu h1 {
-    color: blue;
-}
+  #phatngu h1 {
+    color: yellow;
+  }
 </style>
 
 <script>
-for (let i = 0; i < 10; ++i)
+  for (let i = 0; i < 10; ++i)
     document.getElementById('abc').innerText += 'Phat ngu\n';
 </script>

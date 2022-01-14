@@ -5,12 +5,12 @@
 <a href="#about">About</a>
 
 <style>
-#index h1 {
+  #index h1 {
     color: red;
-}
+  }
 </style>
 
 <script>
-const btn = document.getElementById('start-btn');
-btn.onclick = () => console.log('START!!!');
+  const btn = document.getElementById('start-btn');
+  btn.onclick = () => console.log('START!!!');
 </script>

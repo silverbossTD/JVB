@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "html-obfuscator": "^1.0.2",
     "js-obfuscator": "^0.1.4",
     "log-timestamp": "^0.3.0",
     "pretty": "^2.0.0",
