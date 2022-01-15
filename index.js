@@ -2,10 +2,10 @@ import fs from 'fs';
 import jsObfuscator from 'js-obfuscator';
 import pretty from 'pretty';
 import prettyjs from 'pretty-js';
-import uglifyJS from 'uglify-js';
+import uglifyjs from 'uglify-js';
 import logTimestamp from 'log-timestamp';
 
-import { logger, generateID } from './utils.js';
+import { logger, uniqueID } from './utils.js';
 
 const folder = './components';
 const config = JSON.parse(fs.readFileSync('./config.json'));
@@ -23,6 +23,11 @@ const options = {
 logTimestamp(() => '%s');
 
 class JVB {
+  /**
+   * Remove all js files.
+   * @constructor
+   * @returns {} Nothing is returned.
+   */
   static deleteFiles() {
     fs.readdirSync('./src').forEach(file => {
       if (file.indexOf('.js') > -1)
@@ -30,6 +35,13 @@ class JVB {
     });
   }
 
+  /**
+   * Get the title from the file.
+   * @constructor
+   * @param {string} file - The name of the file.
+   * @param {string} data - The code of the jvb file.
+   * @returns {string} A javascript code to change the title.
+   */
   static getTitle(file, data) {
     let title = data.split('\n')[0];
     if (title.indexOf('@') == -1) {
@@ -40,11 +52,17 @@ class JVB {
     return `document.title = '${title.slice(1)}';`;
   }
 
+  /**
+   * Get data from tags.
+   * @constructor
+   * @param {string} data - The code of the jvb file.
+   * @returns {array} An array containing html, css, js code and link scripts after being processed.
+   */
   static getDataFromTags(data) {
     if (data[0] == '@')
       data = data.split('\n').slice(1).join('');
     else
-      data = data.replaceAll('\n', '');
+      data = data.replace(/\n/g, '');
 
     return [
       data.substring(0, data.indexOf('<style>')),
@@ -54,6 +72,13 @@ class JVB {
     ];
   }
 
+  /**
+   * Write the data to file.
+   * @constructor
+   * @param {string} file - The name of the file.
+   * @param {string} data - The code of the jvb file.
+   * @returns {} Nothing is returned.
+   */
   static async writeFile(file, data) {
     try {
       await fs.promises.writeFile(file, data, 'utf8');
@@ -62,12 +87,16 @@ class JVB {
     }
   }
 
+  /**
+   * Code processing.
+   * @constructor
+   * @returns {} Nothing is returned.
+   */
   static async compile() {
-    const id = generateID();
+    const id = uniqueID();
     const files = fs.readdirSync(folder);
 
     let content = config['html-default'];
-    let html = '';
     let css = '';
     let js = '';
     let scripts = '';
@@ -75,24 +104,16 @@ class JVB {
     files.forEach(async (file, index) => {
       const data = fs.readFileSync(`${folder}/${file}`, 'utf8');
       const tags = this.getDataFromTags(data);
-      html += `<div class="${id}" id="${file.split('.')[0]}" style="display: none;">${tags[0]}</div>`;
+      let html = `<div class="${id}" id="${file.split('.')[0]}">${tags[0]}</div>`;
 
       files.forEach(file => {
-        html = html.replaceAll(`href="#${file.split('.')[0]}"`, `href="#${file.split('.')[0]}" onclick="JVB_${file.split('.')[0]}()"`);
-        html = html.replaceAll('href="#"', `href="#" onclick="JVB_index()"`);
+        html = html.replace(new RegExp(`href="#${file.split('.')[0]}"`, 'g'), `href="#${file.split('.')[0]}" onclick="JVB_${file.split('.')[0]}()"`);
+        html = html.replace(new RegExp('href="#"', 'g'), 'href="#" onclick="JVB_index()"');
       });
 
       css += (tags[1]) ? `<style>${tags[1]}</style>` : '';
 
-      js += `
-                    function JVB_${file.split('.')[0]}() {
-                            ${tags[2]}
-                            ${this.getTitle(file, data)}
-                            for (const element of document.getElementsByClassName('${id}'))
-                                    element.style.display = 'none';
-                            document.getElementById('${file.split('.')[0]}').style.display = 'block';
-                    }
-            `;
+      js += `function JVB_${file.split('.')[0]}() {\n document.getElementsByTagName('body')[0].innerHTML = '${html}';\n ${tags[2]}\n ${this.getTitle(file, data)} \n}`;
 
       tags[3]?.map(link => {
         scripts += `<script${
@@ -110,9 +131,14 @@ class JVB {
 
     this.deleteFiles();
     this.writeFile('./src/index.html', pretty(content));
-    this.writeFile(`./src/app.${id}.js`, (config['encode']) ? (`document.write('${html}');\n` + await jsObfuscator(uglifyJS.minify(js).code, options)) : js);
+    this.writeFile(`./src/app.${id}.js`, (config['encode']) ? await jsObfuscator(uglifyjs.minify(js).code, options) : js);
   }
 
+  /**
+   * Start.
+   * @constructor
+   * @returns {} Nothing is returned.
+   */
   static async run() {
     this.compile();
     fs.readdirSync(folder).forEach(file => {
