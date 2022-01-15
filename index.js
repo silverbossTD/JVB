@@ -43,13 +43,13 @@ class JVB {
    * @returns {string} A javascript code to change the title.
    */
   static getTitle(file, data) {
-    let title = data.split('\n')[0];
-    if (title.indexOf('@') == -1) {
-      logger.warn('[WARN]  ', `Title not found in ${file}`);
-      title = '@' + file.split('.')[0];
+    try {
+      const title = new RegExp('@(.*?)\n').exec(data)[1];
+      return `document.title = '${title}'`;
+    } catch (e) {
+      logger.warn('[WARN]', 'Title is not found in ' + file);
+      return `document.title = '${file.split('.')[0]}'`;
     }
-
-    return `document.title = '${title.slice(1)}';`;
   }
 
   /**
@@ -59,16 +59,15 @@ class JVB {
    * @returns {array} An array containing html, css, js code and link scripts after being processed.
    */
   static getDataFromTags(data) {
-    if (data[0] == '@')
-      data = data.split('\n').slice(1).join('');
-    else
-      data = data.replace(/\n/g, '');
+    data = data
+            .replace(new RegExp('@(.*?)\n'), '')
+            .replace(new RegExp('\n', 'g'), '');
 
     return [
       data.substring(0, data.indexOf('<style>')),
-      /<style>(.*?)<\/style>/g.exec(data)[1],
-      /<script>(.*?)<\/script>/g.exec(data)[1],
-      data.match(/<include(.*?)\/>/g)
+      new RegExp('<style>(.*?)<\/style>', 'g').exec(data)[1],
+      new RegExp('<script>(.*?)<\/script>', 'g').exec(data)[1],
+      data.match(new RegExp('<include(.*?)\/>', 'g'))
     ];
   }
 
@@ -117,11 +116,11 @@ class JVB {
 
       tags[3]?.map(link => {
         scripts += `<script${
-          /<include(.*?)\/>/g.exec(link)[1]
+          new RegExp('<include(.*?)\/>', 'g').exec(link)[1]
         }></script>`;
       });
 
-      if (file == "index.jvb") js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1 || document.URL[document.URL.length - 1] == '#' || document.URL.indexOf('#') == -1) JVB_${file.split('.')[0]}();`;
+      if (file === "index.jvb") js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1 || document.URL[document.URL.length - 1] === '#' || document.URL.indexOf('#') === -1) JVB_${file.split('.')[0]}();`;
       else js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1) JVB_${file.split('.')[0]}();`;
 
       logger.success("[START] ", file);

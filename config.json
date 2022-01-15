@@ -1,12 +1,12 @@
 {
-    "html-default": "<!DOCTYPE html><html lang='en' dir='ltr'><head><meta charset='utf-8'><title>JVB</title></head><body></body></html>",
-    "encode": true,
-    "obfuscator": {
-        "keepLinefeeds": true,
-        "keepIndentations": true,
-        "encodeStrings": true,
-        "encodeNumbers": true,
-        "moveStrings": true,
-        "replaceNames": true
-    }
+  "html-default": "<!DOCTYPE html><html lang='en' dir='ltr'><head><meta charset='utf-8'><title>JVB</title></head><body></body></html>",
+  "encode": true,
+  "obfuscator": {
+    "keepLinefeeds": true,
+    "keepIndentations": true,
+    "encodeStrings": true,
+    "encodeNumbers": true,
+    "moveStrings": true,
+    "replaceNames": true
+  }
 }

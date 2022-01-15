@@ -1,7 +1,7 @@
-const LCERROR = '\x1b[1;31m%s\x1b[0m'; //red
-const LCWARN = '\x1b[1;33m%s\x1b[0m'; //yellow
-const LCINFO = '\x1b[1;36m%s\x1b[0m'; //cyan
-const LCSUCCESS = '\x1b[1;32m%s\x1b[0m'; //green
+const LCERROR = '\x1b[1;31m%s\x1b[0m'; //Bold red
+const LCWARN = '\x1b[1;33m%s\x1b[0m'; //Bold yellow
+const LCINFO = '\x1b[1;36m%s\x1b[0m'; //Bold cyan
+const LCSUCCESS = '\x1b[1;32m%s\x1b[0m'; //Bold green
 
 export class logger {
     static error(message, ...optionalParams) {
