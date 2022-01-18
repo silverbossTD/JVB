@@ -29,8 +29,8 @@ class JVB {
    * @returns {} Nothing is returned.
    */
   static deleteFiles() {
-    fs.readdirSync('./src').forEach(file => {
-      if (file.indexOf('.js') > -1)
+    fs.readdirSync('./src').map(file => {
+      if (file.includes('.js'))
         fs.unlink('./src/' + file, (e) => console.error(e));
     });
   }
@@ -66,8 +66,8 @@ class JVB {
     return [
       data.substring(0, data.indexOf('<style>')),
       new RegExp('<style>(.*?)<\/style>', 'g').exec(data)[1],
-      new RegExp('<script>(.*?)<\/script>', 'g').exec(data)[1],
-      data.match(new RegExp('<include(.*?)\/>', 'g'))
+      new RegExp('<script>(.*?)<\/script>', 'g').exec(data)[1].replace(new RegExp('#include(.*?);', 'g'), ''),
+      data.match(new RegExp('#include(.*?);', 'g'))
     ];
   }
 
@@ -100,12 +100,12 @@ class JVB {
     let js = '';
     let scripts = '';
 
-    files.forEach(async (file, index) => {
+    files.map((file, index) => {
       const data = fs.readFileSync(`${folder}/${file}`, 'utf8');
       const tags = this.getDataFromTags(data);
       let html = `<div class="${id}" id="${file.split('.')[0]}">${tags[0]}</div>`;
 
-      files.forEach(file => {
+      files.map(file => {
         html = html.replace(new RegExp(`href="#${file.split('.')[0]}"`, 'g'), `href="#${file.split('.')[0]}" onclick="JVB_${file.split('.')[0]}()"`);
         html = html.replace(new RegExp('href="#"', 'g'), 'href="#" onclick="JVB_index()"');
       });
@@ -115,13 +115,11 @@ class JVB {
       js += `function JVB_${file.split('.')[0]}() {\n document.getElementsByTagName('body')[0].innerHTML = '${html}';\n ${tags[2]}\n ${this.getTitle(file, data)} \n}`;
 
       tags[3]?.map(link => {
-        scripts += `<script${
-          new RegExp('<include(.*?)\/>', 'g').exec(link)[1]
-        }></script>`;
+        scripts += `<script src=${new RegExp('#include(.*?);', 'g').exec(link)[1]}></script>`;
       });
 
-      if (file === "index.jvb") js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1 || document.URL[document.URL.length - 1] === '#' || document.URL.indexOf('#') === -1) JVB_${file.split('.')[0]}();`;
-      else js += `if (document.URL.indexOf('#${file.split('.')[0]}') > -1) JVB_${file.split('.')[0]}();`;
+      if (file === "index.jvb") js += `if (document.URL.includes('#${file.split('.')[0]}') || document.URL[document.URL.length - 1] === '#' || !document.URL.includes('#')) JVB_${file.split('.')[0]}();`;
+      else js += `if (document.URL.includes('#${file.split('.')[0]}')) JVB_${file.split('.')[0]}();`;
 
       logger.success("[START] ", file);
     });
@@ -140,7 +138,7 @@ class JVB {
    */
   static async run() {
     this.compile();
-    fs.readdirSync(folder).forEach(file => {
+    fs.readdirSync(folder).map(file => {
       fs.watchFile(folder + "/" + file, (curr, prev) => {
         logger.success("[RESTART]");
         this.compile();
